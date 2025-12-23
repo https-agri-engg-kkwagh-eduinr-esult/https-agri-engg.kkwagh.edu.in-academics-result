@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KK Wagh - Mechanical Dept Midsem Results</title>
+    <!-- Using Tailwind for layout structure, custom CSS for specific coloring requirements -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f3f4f6;
+        }
+
+        /* Specific Table Styling per requirements */
+        .custom-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .custom-table th, .custom-table td {
+            border: 1px solid #e5e7eb;
+            padding: 12px 15px;
+            text-align: left;
+            /* Requirement: All header and data values must be in bold */
+            font-weight: bold; 
+            color: #333;
+        }
+
+        /* Requirement: Header row background #FFE5B4 */
+        .header-row {
+            background-color: #FFE5B4; 
+        }
+
+        /* Requirement: Data rows background #fff */
+        .data-row {
+            background-color: #fff;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center py-10 px-4">
+
+    <!-- Main Container -->
+    <div class="w-full max-w-3xl bg-white rounded-lg shadow-xl overflow-hidden">
+        
+        <!-- Header -->
+        <div class="bg-blue-900 text-white p-6 text-center border-b-4 border-yellow-500">
+            <h1 class="text-2xl font-bold uppercase tracking-wider">Karmaveer Kakasaheb Wagh Institute of Engineering Education & Research</h1>
+            <h2 class="text-lg font-semibold mt-2 text-blue-100">Department of Mechanical Engineering</h2>
+            <p class="text-sm mt-1 text-blue-200">Midsem 1 Examination Results (Dec 2025)</p>
+        </div>
+
+        <!-- content -->
+        <div class="p-8">
+            
+            <!-- Input Form -->
+            <div id="search-section" class="mb-6">
+                <form id="resultForm" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-gray-700 font-bold mb-2" for="rollNumber">Roll Number</label>
+                            <input type="text" id="rollNumber" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g. 21ME101">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-bold mb-2" for="dob">Date of Birth</label>
+                            <input type="date" id="dob" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-3 rounded-lg transition duration-200 mt-4">
+                        View Result
+                    </button>
+                </form>
+            </div>
+
+            <!-- Error Message Container -->
+            <div id="errorMessage" class="hidden p-4 bg-red-100 border-l-4 border-red-500 text-red-700 font-bold mb-6">
+                Please enter your roll number and date of birth.
+            </div>
+
+            <!-- Results Section -->
+            <div id="resultSection" class="hidden">
+                <div class="student-info bg-gray-50 p-4 rounded-lg border border-gray-200 mb-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div class="sm:col-span-2 border-b border-gray-200 pb-2 mb-2">
+                            <span class="text-gray-600">Student Name:</span> 
+                            <span class="font-bold text-xl text-gray-800 ml-2">Aditya Abhijit Pathak</span>
+                        </div>
+                        <div><span class="text-gray-600">Roll Number:</span> <span id="displayRoll" class="font-bold text-lg text-gray-800 ml-2"></span></div>
+                        <div><span class="text-gray-600">Date of Birth:</span> <span id="displayDob" class="font-bold text-lg text-gray-800 ml-2"></span></div>
+                        <div><span class="text-gray-600">Attendance:</span> <span class="font-bold text-lg text-green-600 ml-2">100%</span> <span class="text-sm text-gray-500">(till November 2025)</span></div>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="custom-table">
+                        <thead>
+                            <tr class="header-row">
+                                <th>Subject</th>
+                                <th>Exam Date</th>
+                                <th>Marks</th>
+                                <th>Grade</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resultBody">
+                            <!-- Rows generated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-6 text-center text-sm text-gray-500 font-semibold">
+                    * Marks are out of 20. | Grades: 20 (A+), 18-19 (A), 16-17 (B)
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const subjects = [
+            { name: "Linear Algebra (Mathematics 1)", date: "10-12-2025", marks: 19 },
+            { name: "Engineering Physics", date: "11-12-2025", marks: 20 },
+            { name: "Engineering Mechanics", date: "12-12-2025", marks: 19 },
+            { name: "Engineering Graphics", date: "15-12-2025", marks: 17 },
+            { name: "Basic Mechanical Engineering", date: "16-12-2025", marks: 18 }
+        ];
+
+        document.getElementById('resultForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const rollInput = document.getElementById('rollNumber').value.trim();
+            const dobInput = document.getElementById('dob').value;
+            const errorDiv = document.getElementById('errorMessage');
+            const resultSection = document.getElementById('resultSection');
+            const resultBody = document.getElementById('resultBody');
+
+            // Specific Credentials Logic
+            const requiredRoll = "CKW273";
+            const requiredDob = "2006-05-05"; // YYYY-MM-DD for 05/05/2006
+
+            // Validation
+            if (rollInput !== requiredRoll || dobInput !== requiredDob) {
+                errorDiv.textContent = "Invalid Roll Number or Date of Birth.";
+                errorDiv.classList.remove('hidden');
+                resultSection.classList.add('hidden');
+                return;
+            }
+
+            // Hide error if valid
+            errorDiv.classList.add('hidden');
+
+            // Format Display Date (Input is yyyy-mm-dd, need dd-mm-yyyy for display)
+            const dateObj = new Date(dobInput);
+            const displayDob = dateObj.toLocaleDateString('en-GB').replace(/\//g, '-');
+
+            // Populate Student Info
+            document.getElementById('displayRoll').textContent = rollInput;
+            document.getElementById('displayDob').textContent = displayDob;
+
+            // Generate Table Data
+            resultBody.innerHTML = ''; // Clear previous
+
+            subjects.forEach(sub => {
+                // Specific marks as requested
+                const marks = sub.marks;
+                
+                // Determine Grade
+                let grade = '';
+                if (marks === 20) grade = 'A+';
+                else if (marks >= 18) grade = 'A';
+                else grade = 'B';
+
+                const row = document.createElement('tr');
+                row.className = 'data-row';
+                
+                row.innerHTML = `
+                    <td>${sub.name}</td>
+                    <td>${sub.date}</td>
+                    <td>${marks}</td>
+                    <td>${grade}</td>
+                `;
+                resultBody.appendChild(row);
+            });
+
+            // Show Results
+            resultSection.classList.remove('hidden');
+        });
+    </script>
+</body>
+</html>
